@@ -100,7 +100,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 }
 
 impl<T> List<T> {
-    fn iter<'a>(&'a self)  -> Iter<'a, T> {
+    fn iter(&self)  -> Iter<T> {
         Iter(self.head.as_deref())
     }
 }
@@ -126,7 +126,7 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 }
 
 impl<T> List<T> {
-    fn iter_mut<'a>(&'a mut self)  -> IterMut<'a, T> {
+    fn iter_mut(&mut self)  -> IterMut<T> {
         IterMut(self.head.as_deref_mut())
     }
 }
@@ -143,7 +143,42 @@ impl<T> List<T> {
 
 
 pub fn first() {
-    println!("FIRST");
+    let mut ll1 = List::new();
+    assert_eq!(ll1.peek(), None);
+    ll1.push(1);
+    assert_eq!(ll1.peek(), Some(&1));
+    ll1.push(2);
+    assert_eq!(ll1.peek(), Some(&2));
+    assert_eq!(ll1.pop(), Some(2));
+    assert_eq!(ll1.peek(), Some(&1));
+    let llpm = ll1.peek_mut();
+    assert_eq!(llpm, Some(&mut 1));
+    if let Some(i) = llpm {
+        *i = 100;
+    }
+    assert_eq!(ll1.peek(), Some(&100));
+    ll1.push(1000);
+
+    {
+        let mut ii1 = ll1.iter_mut();
+        assert_eq!(ii1.next(), Some(&mut 1000));
+        let iipm = ii1.next();
+        assert_eq!(iipm, Some(&mut 100));
+        if let Some(i) = iipm {
+            *i = 200;
+        }
+        assert_eq!(ii1.next(), None);
+    }
+
+    let mut ii1 = ll1.iter();
+    assert_eq!(ii1.next(), Some(&1000));
+    assert_eq!(ii1.next(), Some(&200));
+    assert_eq!(ii1.next(), None);
+
+    let mut ii2 = ll1.iter_into();
+    assert_eq!(ii2.next(), Some(1000));
+    assert_eq!(ii2.next(), Some(200));
+    assert_eq!(ii2.next(), None);
 }
 
 
