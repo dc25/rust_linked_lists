@@ -45,21 +45,21 @@ impl<T> Drop for List<T> {
     }
 }
 
-struct IterInto<T>(List<T>);
+struct IntoIter<T>(List<T>);
 
-impl<T> Iterator for IterInto<T> {
+impl<T> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         self.0.head.take().map(|n| {
-            self.0 = List { head: n.next };
+            self.0.head = n.next;
             n.elem
         })
     }
 }
 
 impl<T> List<T> {
-    fn iter_into(self) -> IterInto<T> {
-        IterInto(self)
+    fn into_iter(self) -> IntoIter<T> {
+        IntoIter(self)
     }
 }
 
@@ -132,7 +132,7 @@ pub fn first() {
     assert_eq!(ii1.next(), Some(&200));
     assert_eq!(ii1.next(), None);
 
-    let mut ii2 = ll1.iter_into();
+    let mut ii2 = ll1.into_iter();
     assert_eq!(ii2.next(), Some(1000));
     assert_eq!(ii2.next(), Some(200));
     assert_eq!(ii2.next(), None);
@@ -156,7 +156,7 @@ mod test {
         assert_eq!(ll1.peek(), Some(&100));
         ll1.push(1000);
 
-        let mut ii1 = ll1.iter_into();
+        let mut ii1 = ll1.into_iter();
         assert_eq!(ii1.next(), Some(1000));
         assert_eq!(ii1.next(), Some(100));
         assert_eq!(ii1.next(), None);
