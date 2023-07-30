@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-type Link<T>=Option<Rc<Node<T>>>;
+type Link<T> = Option<Rc<Node<T>>>;
 
 struct Node<T> {
     elem: T,
@@ -11,15 +11,17 @@ struct List<T> {
     head: Link<T>,
 }
 
-
 impl<T> List<T> {
     fn new() -> Self {
         Self { head: None }
     }
 
     fn prepend(&self, elem: T) -> Self {
-        let new_node = Some(Rc::new(Node{elem, next: self.head.clone()}));
-        List{head: new_node}
+        let new_node = Some(Rc::new(Node {
+            elem,
+            next: self.head.clone(),
+        }));
+        List { head: new_node }
     }
 
     fn peek(&self) -> Option<&T> {
@@ -27,7 +29,9 @@ impl<T> List<T> {
     }
 
     fn tail(&self) -> List<T> {
-        List{ head: self.head.as_ref().and_then(|n| n.next.clone()) }
+        List {
+            head: self.head.as_ref().and_then(|n| n.next.clone()),
+        }
     }
 
     fn iter(&self) -> Iter<T> {
@@ -35,16 +39,15 @@ impl<T> List<T> {
     }
 }
 
-struct Iter<'a, T> (Option<&'a Node<T>>);
+struct Iter<'a, T>(Option<&'a Node<T>>);
 
 impl<'a, T> Iterator for Iter<'a, T> {
-    type Item=&'a T;
-    fn next(&mut self) ->  Option<Self::Item> {
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
         self.0.map(|n| {
             self.0 = n.next.as_deref();
             &n.elem
         })
-
     }
 }
 
@@ -53,8 +56,10 @@ impl<T> Drop for List<T> {
         let mut h = self.head.take();
         while let Some(rcn) = h {
             match Rc::try_unwrap(rcn).ok() {
-                Some(mut n) => {h = n.next.take(); }
-                None  => { break }
+                Some(mut n) => {
+                    h = n.next.take();
+                }
+                None => break,
             }
         }
     }
@@ -90,11 +95,10 @@ mod test {
         assert_eq!(ll2.peek(), Some(&2));
         assert_eq!(ll2.tail().peek(), Some(&1));
         assert_eq!(ll2.tail().tail().peek(), None);
-        
+
         let mut it = ll2.iter();
         assert_eq!(it.next(), Some(&2));
         assert_eq!(it.next(), Some(&1));
         assert_eq!(it.next(), None);
-
     }
 }
