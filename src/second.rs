@@ -29,6 +29,23 @@ impl<T> List<T> {
     fn tail(&self) -> List<T> {
         List{ head: self.head.as_ref().and_then(|n| n.next.clone()) }
     }
+
+    fn iter(&self) -> Iter<T> {
+        Iter(self.head.as_deref())
+    }
+}
+
+struct Iter<'a, T> (Option<&'a Node<T>>);
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item=&'a T;
+    fn next(&mut self) ->  Option<Self::Item> {
+        self.0.map(|n| {
+            self.0 = n.next.as_deref();
+            &n.elem
+        })
+
+    }
 }
 
 impl<T> Drop for List<T> {
@@ -53,6 +70,11 @@ pub fn second() {
     assert_eq!(ll2.peek(), Some(&2));
     assert_eq!(ll2.tail().peek(), Some(&1));
     assert_eq!(ll2.tail().tail().peek(), None);
+
+    let mut it = ll2.iter();
+    assert_eq!(it.next(), Some(&2));
+    assert_eq!(it.next(), Some(&1));
+    assert_eq!(it.next(), None);
 }
 
 mod test {
@@ -68,5 +90,11 @@ mod test {
         assert_eq!(ll2.peek(), Some(&2));
         assert_eq!(ll2.tail().peek(), Some(&1));
         assert_eq!(ll2.tail().tail().peek(), None);
+        
+        let mut it = ll2.iter();
+        assert_eq!(it.next(), Some(&2));
+        assert_eq!(it.next(), Some(&1));
+        assert_eq!(it.next(), None);
+
     }
 }
